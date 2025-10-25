@@ -11,7 +11,14 @@ export async function clerkAuth(req: Request, res: Response, next: NextFunction)
     const { verifyToken } = await import('@clerk/clerk-sdk-node')
     const secretKey = process.env.CLERK_SECRET_KEY as string | undefined
     if (!secretKey) return res.status(500).json({ message: 'CLERK_SECRET_KEY missing' })
-    const payload: any = await verifyToken(token, { secretKey })
+    // Derive issuer from JWT payload to avoid extra env
+    const [, payloadB64] = token.split('.')
+    if (!payloadB64) return res.status(401).json({ message: 'Invalid token' })
+    const json = Buffer.from(payloadB64.replace(/-/g,'+').replace(/_/g,'/'), 'base64').toString('utf8')
+    const rawClaims = JSON.parse(json)
+    const issuer = rawClaims?.iss as string | undefined
+    if (!issuer) return res.status(401).json({ message: 'Invalid token (issuer missing)' })
+    const payload: any = await verifyToken(token, { secretKey, issuer })
 
     // payload.sub is the Clerk user id; payload.claims may include email
     const sub = payload?.sub

@@ -19,19 +19,37 @@ router.post('/', upload.single('file'), async (req, res) => {
   const file = (req as Request & { file?: Express.Multer.File }).file;
   if (!file) return res.status(400).json({ message: 'No file uploaded' });
 
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET; // use unsigned preset for simplicity
+  const cloudinaryUrl = process.env.CLOUDINARY_URL || '';
+  // Parse CLOUDINARY_URL like: cloudinary://<api_key>:<api_secret>@<cloud_name>
+  let cloudName: string | null = null;
+  let apiKey: string | null = null;
+  let apiSecret: string | null = null;
+  if (cloudinaryUrl.startsWith('cloudinary://')) {
+    try {
+      const withoutScheme = cloudinaryUrl.replace('cloudinary://', '');
+      const [creds, cn] = withoutScheme.split('@');
+      const [key, secret] = (creds || '').split(':');
+      apiKey = key || null;
+      apiSecret = secret || null;
+      cloudName = cn || null;
+    } catch {}
+  }
 
   try {
-    if (cloudName && uploadPreset) {
-      // Upload to Cloudinary using data URI to avoid Blob typing issues
+    if (cloudName && apiKey && apiSecret) {
+      // Signed upload with api_key/api_secret
       const form = new FormData();
-      const ext = path.extname(file.originalname) || '.jpg';
       const mime = file.mimetype || 'image/jpeg';
       const base64 = (file.buffer as Buffer).toString('base64');
       const dataUri = `data:${mime};base64,${base64}`;
+      const timestamp = Math.floor(Date.now() / 1000);
+      // Signature for minimal params (timestamp only): sha1("timestamp=TIMESTAMP" + apiSecret)
+      const toSign = `timestamp=${timestamp}`;
+      const signature = crypto.createHash('sha1').update(toSign + apiSecret).digest('hex');
       form.append('file', dataUri);
-      form.append('upload_preset', uploadPreset);
+      form.append('api_key', apiKey);
+      form.append('timestamp', String(timestamp));
+      form.append('signature', signature);
 
       const resp = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: 'POST',
