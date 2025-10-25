@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { ClerkProvider } from '@clerk/clerk-react'
+import { ClerkProvider, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import './index.css'
 import RootLayout from './pages/RootLayout'
 import Home from './pages/Home'
@@ -35,6 +35,7 @@ const router = createBrowserRouter([
       { path: 'contact', element: <Contact /> },
       { path: 'wishlist', element: <Wishlist /> },
       { path: 'auth', element: <Auth /> },
+      { path: 'auth/sso-callback', element: <AuthenticateWithRedirectCallback /> },
       {
         path: 'admin',
         element: <AdminGuard><Admin /></AdminGuard>,
