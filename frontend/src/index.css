@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+html, body, #root { height: 100%; }
+body {
+  @apply bg-background text-slate-900 dark:text-slate-100 antialiased;
+  background-image: radial-gradient(40% 50% at 50% -10%, rgba(249, 115, 22, 0.08), transparent 60%),
+    radial-gradient(30% 40% at 10% 0%, rgba(100, 116, 139, 0.06), transparent 60%),
+    radial-gradient(30% 40% at 90% 0%, rgba(100, 116, 139, 0.06), transparent 60%);
+  background-repeat: no-repeat;
+}
+
+[data-theme="dark"] body {
+  background-color: #0b0b0f; /* midnight black */
+  background-image: radial-gradient(40% 50% at 50% -10%, rgba(249, 115, 22, 0.10), transparent 60%),
+    radial-gradient(30% 40% at 10% 0%, rgba(148, 163, 184, 0.06), transparent 60%),
+    radial-gradient(30% 40% at 90% 0%, rgba(148, 163, 184, 0.06), transparent 60%);
+}
+
+@layer base {
+  h1 { @apply text-3xl md:text-4xl font-bold tracking-tight; }
+  h2 { @apply text-2xl md:text-3xl font-semibold tracking-tight; }
+  h3 { @apply text-xl md:text-2xl font-semibold; }
+  p { @apply leading-7; }
+  a { @apply transition-colors; }
+}
+
+@layer components {
+  .section { @apply py-16 md:py-20; }
+  .card { @apply bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg border border-slate-200 dark:border-slate-800 shadow-card dark:shadow-none; }
+}
