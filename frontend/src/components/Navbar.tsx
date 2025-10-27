@@ -52,6 +52,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               <NavLink to="/auth" className="text-sm">Login</NavLink>
               <NavLink to="/auth?provider=email" className="text-sm">Login (DB)</NavLink>
+              <NavLink to="/auth?provider=email&mode=register" className="text-sm">Register (DB)</NavLink>
             </div>
           )}
         </div>

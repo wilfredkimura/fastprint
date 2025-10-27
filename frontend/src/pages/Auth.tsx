@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { SignedIn, SignedOut, SignIn, SignUp, useUser } from '@clerk/clerk-react'
+import { SignIn, SignUp, useUser } from '@clerk/clerk-react'
 import { login, register } from '../lib/api'
 import { useStore } from '../lib/store'
 import { useToast } from '../lib/toast'
@@ -34,8 +34,7 @@ export default function Auth() {
 
   return (
     <section className="container py-16 max-w-md">
-      <SignedOut>
-        <div className="grid grid-cols-2 gap-2 mb-4">
+      <div className="grid grid-cols-2 gap-2 mb-4">
           <button
             className={`h-10 rounded-md border ${provider==='clerk' ? 'bg-primary text-white border-primary' : 'border-slate-300 dark:border-slate-700'}`}
             onClick={()=>setProvider('clerk')}
@@ -44,15 +43,22 @@ export default function Auth() {
             className={`h-10 rounded-md border ${provider==='email' ? 'bg-primary text-white border-primary' : 'border-slate-300 dark:border-slate-700'}`}
             onClick={()=>setProvider('email')}
           >Email & Password</button>
-        </div>
+      </div>
 
-        {provider === 'clerk' ? (
+      {provider === 'clerk' ? (
+        (globalThis as any)?.Clerk ? (
           mode === 'login' ? (
             <SignIn routing="path" path="/auth" signUpUrl="/auth?mode=register" />
           ) : (
             <SignUp routing="path" path="/auth" signInUrl="/auth?mode=login" />
           )
         ) : (
+          <div className="card p-4 space-y-3">
+            <div className="text-sm">Clerk is unavailable due to Content Security Policy. Please use Email & Password instead.</div>
+            <button className="h-10 rounded-md bg-primary text-white" onClick={()=>setProvider('email')}>Switch to Email & Password</button>
+          </div>
+        )
+      ) : (
           <form
             onSubmit={async (e)=>{
               e.preventDefault()
@@ -137,18 +143,14 @@ export default function Auth() {
               {loading ? 'Please wait…' : (mode === 'register' ? 'Create Account' : 'Login')}
             </button>
           </form>
+      )}
+      <div className="text-center mt-4 text-sm">
+        {mode === 'login' ? (
+          <button className="underline" onClick={()=>setMode('register')}>Need an account? Register</button>
+        ) : (
+          <button className="underline" onClick={()=>setMode('login')}>Already have an account? Login</button>
         )}
-        <div className="text-center mt-4 text-sm">
-          {mode === 'login' ? (
-            <button className="underline" onClick={()=>setMode('register')}>Need an account? Register</button>
-          ) : (
-            <button className="underline" onClick={()=>setMode('login')}>Already have an account? Login</button>
-          )}
-        </div>
-      </SignedOut>
-      <SignedIn>
-        <p className="text-center">You are already signed in. Redirecting...</p>
-      </SignedIn>
+      </div>
     </section>
   )
 }
