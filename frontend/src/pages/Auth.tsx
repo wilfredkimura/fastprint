@@ -25,6 +25,8 @@ export default function Auth() {
     const params = new URLSearchParams(location.search)
     const m = params.get('mode')
     if (m === 'login' || m === 'register') setMode(m)
+    const p = params.get('provider')
+    if (p === 'clerk' || p === 'email') setProvider(p)
   }, [location.search])
 
   return (

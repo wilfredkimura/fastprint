@@ -49,7 +49,10 @@ export default function Navbar() {
               <button onClick={async ()=>{ try { await apiLogout() } finally { setUser(null) } }} className="underline">Logout</button>
             </div>
           ) : (
-            <NavLink to="/auth" className="text-sm">Login</NavLink>
+            <div className="flex items-center gap-2">
+              <NavLink to="/auth" className="text-sm">Login</NavLink>
+              <NavLink to="/auth?provider=email" className="text-sm">Login (DB)</NavLink>
+            </div>
           )}
         </div>
       </div>
